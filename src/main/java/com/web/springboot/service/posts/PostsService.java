@@ -1,14 +1,20 @@
 package com.web.springboot.service.posts;
 
+import com.samskivert.mustache.Mustache;
 import com.web.springboot.domain.posts.Posts;
 import com.web.springboot.domain.posts.PostsRepository;
+import com.web.springboot.dto.PostsListResponseDto;
 import com.web.springboot.dto.PostsResponseDto;
 import com.web.springboot.dto.PostsSaveRequestDto;
 import com.web.springboot.dto.PostsUpdateRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
 
 @RequiredArgsConstructor
 @Service
@@ -35,5 +41,18 @@ public class PostsService {
         Posts entity = postsRepository.findById(id).orElseThrow(()->new IllegalArgumentException("해당 게시글이 없습니다 id="+id));
 
         return new PostsResponseDto(entity);
+    }
+
+    @Transactional(readOnly = true)
+    public List<PostsListResponseDto> findAllDesc(){
+        return postsRepository.findAllDesc().stream().map(PostsListResponseDto::new)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void delete (Long id){
+        Posts posts = postsRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("해당 게시글이 없습니다. id="+ id));
+
+        postsRepository.delete(posts);
     }
 }
